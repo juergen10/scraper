@@ -7,6 +7,5 @@ job_page = requests.get(job_url)
 
 soup = BeautifulSoup(job_page.content, "html.parser")
 
-job_title = 
 job_description = soup.find("div", class_="job-desc")
-print(soup)
+print(job_description)
