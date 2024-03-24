@@ -18,6 +18,7 @@ class DB:
         if not db_file:
             print('Error: Database file not specified in environment variables.')
             return None
+        
         if not self.connection:
             try:
                 self.connection = sqlite3.connect(db_file)
@@ -27,7 +28,6 @@ class DB:
         
         return self.connection 
                 
-        
     def execute_query(self, query, parameters=None):
         try:
             cursor = self.connection.cursor()
@@ -35,15 +35,39 @@ class DB:
                 cursor.execute(query, parameters)
             else:
                 cursor.execute(query)
-            result = cursor.fetchall()
-            cursor.close()
-            
+            result = cursor.fetchall()  
+                      
             return result
         except sqlite3.Error as e:
+            self.connection.rollback()
             print("Error executing query:", e)
             
-            return None
-        
+    def execute_insert_query(self, query, parameters=None):
+        try:
+            cursor = self.connection.cursor()
+            if parameters:
+                cursor.execute(query, parameters)
+            else:
+                cursor.execute(query)
+                      
+            self.connection.commit()
+            return True
+        except sqlite3.Error as e:
+            self.connection.rollback()
+            print("Error executing query:", e)
+            
+    def execute_transaction(self, queries):
+        try:
+            cursor = self.connection.cursor()
+            for query, parameters in queries:
+                cursor.execute(query, parameters)
+            self.connection.commit()
+        except sqlite3.Error as e:
+            self.connection.rollback()
+            print("Transaction failed and rolled back:", e)
+        finally:
+            self.connection.close()
+                
 def create_table(conn):
     create_table_query ="""
         CREATE TABLE IF NOT EXISTS jobs (

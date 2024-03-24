@@ -66,9 +66,3 @@ class Devjobs:
                 jobs.append(job);
             counter +=1
         return jobs
-        
-    
-b = Devjobs('https://devjobsindo.org/ngo-jobs')
-obj =json.dumps(b.get_jobs(), indent=4)
-with open("jobs.json", "w") as outfile:
-    outfile.write(obj)

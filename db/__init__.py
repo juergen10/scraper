@@ -1,1 +1,3 @@
-from .db import *
+__all__ = [
+    "db",      # refers to the 'db.py' file
+]

@@ -1,54 +1,45 @@
 import requests
+import os
 import json
-from bs4 import BeautifulSoup
-from datetime import datetime
+from dotenv import load_dotenv
+from models import job
 
-URL = "https://devjobsindo.org/ngo-jobs/"
-wp_url = "http://localhost:8001/wp-json/wp/v2/posts"
+load_dotenv()
 
+URL_JOB = os.getenv('URL_JOB')
+WP_URL = os.getenv("WP_URL") + "/wp-json/wp/v2/posts"
 
-page = requests.get(URL)
-soup = BeautifulSoup(page.content, "html.parser")
+job = job.Job()
 
-pagination = soup.find_all("div", class_="pagination list-center")[1]
+scrap_jobs = Devjobs(URL_JOB)
+obj = json.dumps(scrap_jobs.get_jobs(), indent=4)
+queries = [];
 
-last_page = pagination.find_all('a', class_="page-numbers")[1].text
+with open("jobs.json", "w") as outfile:
+    outfile.write(obj)
 
-job_elements = soup.find_all("div", class_="row is-flex")
-child_job_elements = job_elements[0].contents
-keys = len(child_job_elements)
-jobs = {}
+with open('jobs.json') as f:
+    jobs = json.load(f)
+    for value in jobs:
+        is_slug_available = job.select_job(value['slug'])
+        
+        if is_slug_available != None:
+            continue
+        
+        insert_jobs = job.insert_job(title=value['title'], slug=value['slug'], start_date=value['start_date'], end_date=value['end_date'])
+       
+        data = {
+            "content":str(value['content']),
+            "title": value['title'],
+            "status": "publish",
+            "categories":[21],
+            "comment_status": "closed"
+        }
 
-for i in range(keys):
-    job_url = child_job_elements[i].find("a", class_="job-details-link")['href']
-    end_date = child_job_elements[i].find("span", class_="job-date__closing").text.strip().lstrip("- ")
-    job_page = requests.get(job_url)
-    soup = BeautifulSoup(job_page.content, "html.parser")
-    job_description = soup.find("div", class_="job-desc")
-    
-    jobs[i] = {
-        "title": child_job_elements[i].find("span", class_="noo-icon-tool noo-tool-email-job")["data-title"],
-        "url": job_url,
-        "slug": job_url.strip().split("/")[-2],
-        "content": job_description,
-        "start_date": child_job_elements[i].find("time", class_="entry-date")["datetime"],
-        "end_date": datetime.strptime(end_date, '%B %d, %Y').strftime('%Y-%m-%d %H:%M:%S')
-    }
-headers = {
-    "Content-Type": "application/x-www-form-urlencoded",
-    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsIm5hbWUiOiJiaW5hIiwiaWF0IjoxNzEwNDEzODc5LCJleHAiOjE4NjgwOTM4Nzl9._c_c3RHB65M6tuUE-rq_AIcV-gos6C3KyoOGqg48KW8"
-}
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsIm5hbWUiOiJiaW5hIiwiaWF0IjoxNzEwNDEzODc5LCJleHAiOjE4NjgwOTM4Nzl9._c_c3RHB65M6tuUE-rq_AIcV-gos6C3KyoOGqg48KW8"
+        }
+        post = requests.post(WP_URL, data = data, headers = headers)
+        print(post.text)
 
-for key, value in jobs.items():
-    data = {
-           "content":str(value['content']),
-           "title": value["title"],
-           "status": "publish",
-           "categories":[21],
-           "comment_status": "closed"
-    }
-    post = requests.post(wp_url, data = data, headers = headers)
-    print(post.text)
-    # print(value["content"])
-
-# print(jobs)
