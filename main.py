@@ -4,11 +4,16 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 URL = "https://devjobsindo.org/ngo-jobs/"
+wp_url = "http://localhost:8001/wp-json/wp/v2/posts"
+
+
 page = requests.get(URL)
-wp_url = "/wp-json/wp/v2/posts"
-
-
 soup = BeautifulSoup(page.content, "html.parser")
+
+pagination = soup.find_all("div", class_="pagination list-center")[1]
+
+last_page = pagination.find_all('a', class_="page-numbers")[1].text
+
 job_elements = soup.find_all("div", class_="row is-flex")
 child_job_elements = job_elements[0].contents
 keys = len(child_job_elements)
