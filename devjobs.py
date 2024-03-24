@@ -31,8 +31,9 @@ class Devjobs:
         counter = 1;
         total_page = self.__get_total_page()
         
-        while counter <= total_page:
-            url = f'{self.url}/page/{counter}'
+        while total_page >= counter:
+            url = f'{self.url}/page/{total_page}'
+            print(url)
             page = requests.get(url)
             content_html = BeautifulSoup(page.content, "html.parser")
             
@@ -64,5 +65,5 @@ class Devjobs:
                 }
                 
                 jobs.append(job);
-            counter +=1
+            total_page -=1
         return jobs

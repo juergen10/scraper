@@ -2,6 +2,7 @@
 /include
 /lib
 /lib64
+/__pycache__
 *.html
 pyvenv.cfg
 .env
