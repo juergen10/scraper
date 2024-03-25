@@ -11,6 +11,7 @@ load_dotenv()
 URL_SCRAP = os.getenv('URL_SCRAP')
 WP_BASE_URL = os.getenv("WP_BASE_URL")
 TOKEN = os.getenv("TOKEN")
+CATEGORY_ID = os.getenv("CATEGORY_ID")
 
 if not URL_SCRAP:
     print('Error: Scrapping URL not specified in environment variables.')
@@ -22,6 +23,10 @@ if not WP_BASE_URL:
     
 if not TOKEN:
     print('Error: Token not specified in environment variables.')
+    sys.exit(-1)
+    
+if not CATEGORY_ID:
+    print('Error: Category id not specified in environment variables.')
     sys.exit(-1)
     
 WP_URL = WP_BASE_URL+"/wp-json/wp/v2/posts"
@@ -49,7 +54,7 @@ if os.path.exists("jobs.json"):
                 "content":str(value['content']),
                 "title": value['title'],
                 "status": "publish",
-                "categories":[21],
+                "categories":[CATEGORY_ID],
                 "comment_status": "closed"
             }
 
