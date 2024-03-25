@@ -14,7 +14,7 @@ class DB:
         return cls._instance
     
     def connect(self):
-        db_file = 'databases/'+os.getenv("DB_NAME")
+        db_file = 'database/'+os.getenv("DB_NAME")
         if not db_file:
             print('Error: Database file not specified in environment variables.')
             return None
@@ -67,22 +67,5 @@ class DB:
             print("Transaction failed and rolled back:", e)
         finally:
             self.connection.close()
-                
-def create_table(conn):
-    create_table_query ="""
-        CREATE TABLE IF NOT EXISTS jobs (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            title VARCHAR(255) NOT NULL,
-            slug VARCHAR(255) NOT NULL,
-            start_date DATETIME NOT NULL,
-            end_date DATETIME NOT NULL
-        )
-    """
-    conn.execute_query(create_table_query)
-    
-if __name__ == '__main__':
-     connection = DB()
-     connection.connect()
-     
-     create_table(connection)
+
         
