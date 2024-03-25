@@ -39,7 +39,6 @@ class DB:
                       
             return result
         except sqlite3.Error as e:
-            self.connection.rollback()
             print("Error executing query:", e)
             
     def execute_insert_query(self, query, parameters=None):
@@ -49,7 +48,7 @@ class DB:
                 cursor.execute(query, parameters)
             else:
                 cursor.execute(query)
-                      
+                
             self.connection.commit()
             return True
         except sqlite3.Error as e:

@@ -4,16 +4,31 @@ import json
 from dotenv import load_dotenv
 from models import job
 from devjobs import Devjobs
+import sys
 
 load_dotenv()
 
-URL_JOB = os.getenv('URL_JOB')
-WP_URL = os.getenv("WP_URL") + "/wp-json/wp/v2/posts"
+URL_SCRAP = os.getenv('URL_SCRAP')
+WP_BASE_URL = os.getenv("WP_BASE_URL")
+TOKEN = os.getenv("TOKEN")
+
+if not URL_SCRAP:
+    print('Error: Scrapping URL not specified in environment variables.')
+    sys.exit(-1)
+
+if not WP_BASE_URL:
+    print('Error: WP BASE URL not specified in environment variables.')
+    sys.exit(-1)
+    
+if not TOKEN:
+    print('Error: Token not specified in environment variables.')
+    sys.exit(-1)
+    
+WP_URL = WP_BASE_URL+"/wp-json/wp/v2/posts"
 
 print('Scrapping start!')
-scrap_jobs = Devjobs(URL_JOB)
+scrap_jobs = Devjobs(URL_SCRAP)
 obj = json.dumps(scrap_jobs.get_jobs(), indent=4)
-queries = [];
 
 with open("jobs.json", "w") as outfile:
     outfile.write(obj)
@@ -24,7 +39,7 @@ if os.path.exists("jobs.json"):
         jobs = json.load(f)
         for value in jobs:
             is_slug_available = job.select_job(value['slug'])
-            
+            print(is_slug_available);
             if is_slug_available != None:
                 continue
             
@@ -40,8 +55,11 @@ if os.path.exists("jobs.json"):
 
             headers = {
                 "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsIm5hbWUiOiJiaW5hIiwiaWF0IjoxNzEwNDEzODc5LCJleHAiOjE4NjgwOTM4Nzl9._c_c3RHB65M6tuUE-rq_AIcV-gos6C3KyoOGqg48KW8"
+                "Authorization": "Bearer "+TOKEN
             }
-            post = requests.post(WP_URL, data = data, headers = headers)            
-    print('Finish scrapping!')
-    os.remove("jobs.json")
+            post = requests.post(WP_URL, data = data, headers = headers)    
+            print(post.status_code)     
+        print('Finish scrapping!')
+else:
+    print("jobs.json doesn't exists!")
+os.remove("jobs.json")
