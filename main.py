@@ -1,10 +1,10 @@
-import requests
 import os
+import sys
 import json
+import requests
 from dotenv import load_dotenv
 from models import job
 from devjobs import Devjobs
-import sys
 
 load_dotenv()
 

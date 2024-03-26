@@ -16,9 +16,6 @@ def migrate_database():
     connection = DB().connect()
     if not connection:
         return
-
-    # Create the database version table if it doesn't exist
-    cursor = connection.cursor()
     
     create_table_query ="""
         CREATE TABLE IF NOT EXISTS jobs (

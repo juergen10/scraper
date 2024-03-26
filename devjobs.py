@@ -1,5 +1,4 @@
 import requests
-import json
 from bs4 import BeautifulSoup
 from datetime import datetime
 from dateutil import parser
@@ -7,13 +6,7 @@ from dateutil import parser
 class Devjobs:
     def __init__(self, url) -> None:
         self.url = url
-        
-    def __set_parse_html(url):
-        page = requests.get(url)
-        soup = BeautifulSoup(page.content, "html.parser")
-        
-        return soup
-    
+
     def __set_html(self):
         page = requests.get(self.url)
         soup = BeautifulSoup(page.content, "html.parser")
@@ -28,7 +21,7 @@ class Devjobs:
 
     def get_jobs(self):
         jobs = []
-        counter = 1;
+        counter = 1
         total_page = self.__get_total_page()
         
         while total_page >= counter:
@@ -64,6 +57,6 @@ class Devjobs:
                     "end_date": end_date
                 }
                 
-                jobs.append(job);
+                jobs.append(job)
             total_page -=1
         return jobs
